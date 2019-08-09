@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+
+  <h1>Are SSE events cool?</h1>
+  <h3>Yes: <span id="yesCount"></span></h3>
+  <h3>No: <span id="noCount"></span></h3>
+  <button id="voteYes">Yes</button>
+  <button id="voteNo">No</button>
+
+  <script>
+    if (window.EventSource) {
+      const source = new EventSource('/stream')
+
+      source.addEventListener('message', function (e) {
+        // console.log(e.data)
+        const data = JSON.parse(e.data)
+        yesDisplay.textContent = data.yes
+        noDisplay.textContent = data.no
+      }, false)
+
+      source.addEventListener('open', function (e) {
+        console.log("Connection was opened")
+      }, false)
+
+      source.addEventListener('error', function (e) {
+        if (e.readyState == EventSource.CLOSED) {
+          console.log("Connection was closed")
+        }
+      }, false)
+    }
+
+    const yesBtn = document.getElementById('voteYes')
+    const noBtn = document.getElementById('voteNo')
+    const yesDisplay = document.getElementById('yesCount')
+    const noDisplay = document.getElementById('noCount')
+
+    function vote(vote) {
+      fetch(`/vote?choice=${vote}`)
+      // .then(res => console.log(res))
+    }
+
+    yesBtn.onclick = () => vote('yes')
+    noBtn.onclick = () => vote('no')
+  </script>
+</body>
+
+</html>
